@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A quick, contributor-friendly overview of active projects.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <p>Contributor workspace</p>
+        <h1>Project Pulse</h1>
+        <p>A quick look at what teams are working on and where you can help.</p>
+      </header>
+
+      <p class="loading-state" id="loading-state" role="status">Loading projects…</p>
+      <section class="project-grid" id="project-grid" aria-label="Projects" hidden></section>
+      <p class="empty-state" id="empty-state" role="status" hidden>
+        There are no projects to show right now. Check back soon.
+      </p>
+      <p class="error-state" id="error-state" role="alert" hidden>
+        Projects could not be loaded. Please try again later.
+      </p>
+    </main>
+
+    <script>
+      const loadingState = document.querySelector("#loading-state");
+      const projectGrid = document.querySelector("#project-grid");
+      const emptyState = document.querySelector("#empty-state");
+      const errorState = document.querySelector("#error-state");
+
+      function setVisible(element, visible) {
+        element.hidden = !visible;
+      }
+
+      function displayValue(value, fallback) {
+        return typeof value === "string" && value.trim() ? value.trim() : fallback;
+      }
+
+      function makeElement(tagName, className, text) {
+        const element = document.createElement(tagName);
+        element.className = className;
+        element.textContent = text;
+        return element;
+      }
+
+      function makeBadge(className, label, value, dataAttribute) {
+        const badge = makeElement("span", className, value);
+        badge.setAttribute("aria-label", `${label}: ${value}`);
+        badge.setAttribute(`data-${dataAttribute}`, value.toLowerCase());
+        return badge;
+      }
+
+      function makeProjectCard(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+
+        const name = displayValue(project.name, "Untitled project");
+        const owner = displayValue(project.owner, "Not provided");
+        const status = displayValue(project.status, "Not provided");
+        const priority = displayValue(project.priority, "Not provided");
+        const activity = displayValue(project.recentActivity, "No recent activity reported.");
+        const summary = displayValue(
+          project.summary,
+          "A short project overview is not available yet."
+        );
+
+        const heading = makeElement("h2", "project-name", name);
+        const badges = document.createElement("div");
+        badges.className = "project-badges";
+        badges.append(
+          makeBadge("status-badge", "Status", status, "status"),
+          makeBadge("priority-badge", "Priority", priority, "priority")
+        );
+
+        const summaryText = makeElement("p", "project-summary", summary);
+        const metadata = document.createElement("div");
+        metadata.className = "project-meta";
+        metadata.append(
+          makeElement("p", "project-owner", `Owner: ${owner}`),
+          makeElement("p", "project-activity", `Recent activity: ${activity}`)
+        );
+
+        card.append(heading, badges, summaryText, metadata);
+        return card;
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) {
+            throw new Error(`Project data request failed with status ${response.status}.`);
+          }
+
+          const data = await response.json();
+          if (!data || !Array.isArray(data.projects)) {
+            throw new Error("Project data must contain a projects array.");
+          }
+
+          setVisible(loadingState, false);
+          if (data.projects.length === 0) {
+            setVisible(emptyState, true);
+            return;
+          }
+
+          const cards = data.projects.map((project) => {
+            if (!project || typeof project !== "object" || Array.isArray(project)) {
+              throw new Error("Project data contains an invalid project record.");
+            }
+            return makeProjectCard(project);
+          });
+          projectGrid.replaceChildren(...cards);
+          setVisible(projectGrid, true);
+        } catch (error) {
+          setVisible(loadingState, false);
+          errorState.textContent =
+            "Projects could not be loaded. Check that project-data.json is available, then try again.";
+          setVisible(errorState, true);
+          console.error("Unable to load Project Pulse data:", error);
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>

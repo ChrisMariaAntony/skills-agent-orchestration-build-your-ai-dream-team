@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "name": "Community Onboarding",
+      "owner": "Maya Chen",
+      "status": "On track",
+      "recentActivity": "Updated the first-week contributor guide and opened it for review.",
+      "priority": "High",
+      "summary": "Make it easier for new contributors to find a first task and get a helpful response."
+    },
+    {
+      "name": "Accessibility Improvements",
+      "owner": "Jordan Lee",
+      "status": "Needs attention",
+      "recentActivity": "Keyboard navigation testing found two focus-order issues to resolve.",
+      "priority": "High",
+      "summary": "Improve keyboard and screen-reader support across the contributor workflow."
+    },
+    {
+      "name": "Documentation Refresh",
+      "owner": "Avery Patel",
+      "status": "In progress",
+      "recentActivity": "The setup instructions were reorganized; API examples are next.",
+      "priority": "Medium",
+      "summary": "Bring setup guides and examples up to date so contributors can get started smoothly."
+    },
+    {
+      "name": "Release Readiness",
+      "owner": "Sam Rivera",
+      "status": "On track",
+      "recentActivity": "The release checklist is current and the final smoke test is scheduled.",
+      "priority": "Low",
+      "summary": "Coordinate the final checks and communication for the upcoming release."
+    }
+  ]
+}
